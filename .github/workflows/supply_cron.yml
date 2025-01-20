@@ -16,11 +16,23 @@ jobs:
 
       - name: Call API and extract data
         run: |
+          # Create v1 directory if it doesn't exist
+          mkdir -p ./v1
+
           # Call the API and save the response
-          curl -sS -L "https://api.andromedaprotocol.io/v1/tokenomics/history?limit=1" -o response.json
+          if ! curl -sS -L -f "https://api.andromedaprotocol.io/v1/tokenomics/history?limit=1" -o response.json; then
+            echo "Failed to fetch data from API"
+            exit 1
+          fi
 
           # Extract circulating supply from the API response using jq
-          jq '.result[0].circulating_supply' response.json > ./v1/circulating_supply.json
+          if ! jq -e '.result[0].circulating_supply' response.json > ./v1/circulating_supply.json; then
+            echo "Failed to extract circulating supply from response"
+            exit 1
+          fi
+
+          # Clean up temporary file
+          rm response.json
 
       - name: Commit and push changes
         run: |

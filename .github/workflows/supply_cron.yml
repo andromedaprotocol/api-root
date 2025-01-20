@@ -27,9 +27,12 @@ jobs:
           git config --global user.name 'github-actions[bot]'
           git config --global user.email 'github-actions[bot]@users.noreply.github.com'
           if ! git diff --quiet ./v1/circulating_supply.json; then
-            git add ./supply/circulating_supply.json
+            git add ./v1/circulating_supply.json
             git commit -m 'Automated update of JSON file with circulating supply from API'
-            git push
+            if ! git push; then
+              echo "Failed to push changes"
+              exit 1
+            fi
           else
             echo "No changes to circulating supply to commit."
           fi

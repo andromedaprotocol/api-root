@@ -1,0 +1,37 @@
+name: Update Supply from Tokenomics API
+
+on:
+  # schedule:
+  #   # Run every day at 6 AM UTC
+  #    - cron: '0 6 * * *'
+  workflow_dispatch:
+
+jobs:
+  update-json:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Call API and extract data
+        run: |
+          # Call the API and save the response
+          curl -sS -L "https://api.andromedaprotocol.io/v1/tokenomics/history?limit=1" -o response.json
+
+          # Extract circulating supply from the API response using jq
+          jq '.result[0].circulating_supply' response.json > ./v1/circulating_supply.json
+
+      - name: Commit and push changes
+        run: |
+          git config --global user.name 'github-actions[bot]'
+          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+          if ! git diff --quiet ./v1/circulating_supply.json; then
+            git add ./supply/circulating_supply.json
+            git commit -m 'Automated update of JSON file with circulating supply from API'
+            git push
+          else
+            echo "No changes to circulating supply to commit."
+          fi
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

@@ -1,10 +1,10 @@
 name: Update Supply from Tokenomics API
 
 on:
-  # schedule:
-  #   # Run every day at 6 AM UTC
-  #    - cron: '0 6 * * *'
-  workflow_dispatch:
+  schedule:
+    # Run every day at 6 AM UTC
+     - cron: '0 6 * * *'
+  # workflow_dispatch:
 
 jobs:
   update-json:
